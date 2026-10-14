@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  
+  <!-- SEO & Meta -->
+  <title>Mi Cursada - Organizador Académico</title>
+  <meta name="description" content="Organizador universitario: materias, asistencias, exámenes, TPs y grupos de estudio. Funciona offline.">
+  <meta name="theme-color" content="#0a0a1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Mi Cursada">
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="src/styles.css">
+  
+  <style>
+    /* Loading screen */
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #0a0a1a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease;
+    }
+    .loading-screen.fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .loading-logo {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      animation: bounce 1s ease-in-out infinite;
+    }
+    .loading-text {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #a5b4fc, #f472b6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .loading-bar {
+      width: 120px;
+      height: 3px;
+      background: rgba(99, 102, 241, 0.2);
+      border-radius: 4px;
+      margin-top: 20px;
+      overflow: hidden;
+    }
+    .loading-bar::after {
+      content: '';
+      display: block;
+      width: 40%;
+      height: 100%;
+      background: linear-gradient(90deg, #6366f1, #ec4899);
+      border-radius: 4px;
+      animation: loading-slide 1.2s ease-in-out infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    @keyframes loading-slide {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(350%); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div class="loading-screen" id="loading-screen">
+    <div class="loading-logo">📚</div>
+    <div class="loading-text">Mi Cursada</div>
+    <div class="loading-bar"></div>
+  </div>
+  
+  <!-- App Container -->
+  <div id="app"></div>
+  
+  <!-- App Script -->
+  <script type="module" src="src/app.js"></script>
+  
+  <!-- Remove loading screen once app renders -->
+  <script>
+    // Wait for app to be rendered, then fade out loading
+    const checkApp = setInterval(() => {
+      const app = document.getElementById('app');
+      if (app && app.children.length > 0) {
+        clearInterval(checkApp);
+        const loading = document.getElementById('loading-screen');
+        loading.classList.add('fade-out');
+        setTimeout(() => loading.remove(), 500);
+      }
+    }, 100);
+    
+    // Fallback: remove loading after 3 seconds no matter what
+    setTimeout(() => {
+      const loading = document.getElementById('loading-screen');
+      if (loading) {
+        loading.classList.add('fade-out');
+        setTimeout(() => loading.remove(), 500);
+      }
+    }, 3000);
+  </script>
+  
+  <!-- Register Service Worker for PWA -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('SW registrado:', reg.scope))
+          .catch(err => console.log('SW error:', err));
+      });
+    }
+  </script>
+</body>
+</html>
